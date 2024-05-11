@@ -51,4 +51,4 @@ Sin licencia
 * Deja un Like 👍
 
 ---
-⌨️ con ❤️ por [Nombre del Autor](https://github.com/jwoodleybolivard) 😊
+⌨️ con ❤️ por [Jean Woodley Bolivard](https://github.com/jwoodleybolivard) 😊
