@@ -215,6 +215,7 @@
     e.preventDefault();
     let nombre = $("form:first input:first").val();
     let balance = Number($("form:first input:nth-child(2)").val());
+    // console.log("Valor de nombre y balance: ", nombre, balance);
     try {
       const response = await fetch("http://localhost:3000/usuario", {
         method: "post",
@@ -287,8 +288,8 @@
               </tr>
          `);
 
-      $("#emisor").append(`<option value="${c.nombre}">${c.nombre}</option>`);
-      $("#receptor").append(`<option value="${c.nombre}">${c.nombre}</option>`);
+      $("#emisor").append(`<option value="${c.id}">${c.nombre}</option>`);
+      $("#receptor").append(`<option value="${c.id}">${c.nombre}</option>`);
     });
   };
 
@@ -308,8 +309,8 @@
       $(".transferencias").append(`
        <tr>
          <td> ${formatDate(t.fecha)} </td>
-         <td> ${t.emisor} </td>
-         <td> ${t.receptor} </td>
+         <td> ${t.nombreemisor} </td>
+         <td> ${t.nombrereceptor} </td>
          <td> ${t.monto} </td>
        </tr>
      `);

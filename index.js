@@ -17,7 +17,7 @@ app.get("/", (req, res) => {
 app.post("/usuario", async (req, res) => {
     try {
         const { nombre, balance } = req.body;
-        console.log('nombre y balance: ', nombre, balance);
+        // console.log('nombre y balance: ', nombre, balance);
 
         // Verificar si los campos están vacíos
         if (!nombre || balance === undefined || isNaN(balance)) {
@@ -37,7 +37,8 @@ app.post("/usuario", async (req, res) => {
 
         // Insertar el nuevo usuario
         const nuevoUsuario = await insertarUsuario(nombre, balance);
-        res.status(201).json(nuevoUsuario);
+        // console.log('nuevoUsuario: ', nuevoUsuario);
+        res.send(nuevoUsuario);
     } catch (error) {
         errores(error, res);
     }
@@ -54,13 +55,14 @@ app.get("/usuarios", async (req, res) => {
 });
 
 // Ruta para editar un usuario
-app.put("/usuario/:id", async (req, res) => {
+app.put("/usuario", async (req, res) => {
     try {
-        const { id } = req.params;
-        const { nombre, balance } = req.body;
+        const { id } = req.query;
+        const { name, balance } = req.body;
+        // console.log('Valor de nombre y balance: ', nombre, balance);
 
         // Verificar si los campos están vacíos
-        if (!nombre || balance === undefined || isNaN(balance)) {
+        if (!name || balance === undefined || isNaN(balance)) {
             throw { code: "DATOS_INCOMPLETOS" };
         }
 
@@ -70,12 +72,13 @@ app.put("/usuario/:id", async (req, res) => {
         }
 
         // Editar el usuario
-        await editarUsuario(id, nombre, balance);
-        res.send(`El usuario con ID ${id} ha sido editado correctamente`);
+        const usuarioEditado = await editarUsuario(id, name, balance);
+        res.send(usuarioEditado);
     } catch (error) {
         errores(error, res);
     }
 });
+
 
 // Ruta para eliminar un usuario
 app.delete("/usuario", async (req, res) => {
@@ -92,7 +95,7 @@ app.delete("/usuario", async (req, res) => {
 app.post("/transferencia", async (req, res) => {
     try {
         const { emisor, receptor, monto } = req.body;
-        console.log('emisor, receptor y monto: ', emisor, receptor, monto);
+        // console.log('emisor, receptor y monto: ', emisor, receptor, monto);
 
         // Verificar si los campos están vacíos
         if (!emisor || !receptor || monto === undefined || isNaN(monto)) {
@@ -105,18 +108,20 @@ app.post("/transferencia", async (req, res) => {
         }
 
         // Verificar si el emisor tiene saldo suficiente
+        // console.log('llega aquí.');
         const usuarios = await obtenerUsuarios();
         // console.log('valor de usuarios: ', usuarios);
-        const saldoEmisor = usuarios.find(usuario => usuario.nombre === emisor);
+        const saldoEmisor = usuarios.find(usuario => usuario.id == emisor);
         // console.log('valor de saldoEmisor: ', saldoEmisor);
         if (saldoEmisor.balance < monto) {
             throw { code: "SALDO_INSUFICIENTE" };
         }
 
         // Realizar la transferencia
-        await realizarTransferencia(emisor, receptor, monto);
-        res.send(`Transferencia realizada correctamente de ${emisor} a ${receptor}`);
+        const transferencia = await realizarTransferencia(emisor, receptor, monto);
+        res.send(transferencia);
     } catch (error) {
+        // console.log('error: ', error);
         errores(error, res);
     }
 });

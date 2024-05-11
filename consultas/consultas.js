@@ -63,21 +63,27 @@ async function eliminarUsuario(id) {
 
 // Función para realizar una transferencia entre usuarios en la base de datos
 async function realizarTransferencia(emisor, receptor, monto) {
-    console.log('DB transferencia: ', emisor, receptor, monto);
+    // console.log('DB transferencia: ', emisor, receptor, monto);
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-
+        // console.log('descontando suma al emisor...');
         // Restar el monto al emisor
         await client.query('UPDATE usuarios SET balance = balance - $1 WHERE id = $2', [monto, emisor]);
+        // console.log('descontado con éxito.');
         // Sumar el monto al receptor
+        // console.log('agregando al receptor...')
         await client.query('UPDATE usuarios SET balance = balance + $1 WHERE id = $2', [monto, receptor]);
+        // console.log('agregado con éxito.');
         // Registrar la transferencia
+        // console.log('registrando transferencia...');
         const result = await client.query('INSERT INTO transferencias (emisor, receptor, monto, fecha) VALUES ($1, $2, $3, CURRENT_TIMESTAMP) RETURNING *', [emisor, receptor, monto]);
 
         await client.query('COMMIT');
+        // console.log('transferencia realizada: ', result.rows[0]);
         return result.rows[0];
     } catch (error) {
+        // console.log(error);
         await client.query('ROLLBACK');
         throw error; // Lanzar error para ser manejado en el lugar donde se llama a la función
     } finally {
@@ -89,7 +95,7 @@ async function realizarTransferencia(emisor, receptor, monto) {
 async function obtenerTransferencias() {
     try {
         const result = await pool.query({
-            text: 'SELECT * FROM transferencias'
+            text: 'SELECT t.*, u.nombre AS nombreEmisor, uu.nombre as nombreReceptor FROM transferencias t INNER JOIN usuarios u ON t.emisor = u.id inner join usuarios uu on t.receptor = uu.id'
         });
         return result.rows;
     } catch (error) {
